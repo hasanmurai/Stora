@@ -36,7 +36,7 @@ class AuthController extends Controller
 
     // 2. user login
     public function login(Request $request) {
-        
+
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:8',
@@ -90,6 +90,9 @@ class AuthController extends Controller
     public function deleteAccount(Request $request) {
 
         $user = $request->user();
+        if(!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
         $user->shops()->delete(); 
         $user->delete();
 
