@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Shop extends Model
 {
     protected $fillable = ['name', 'slug', 'photo', 'description'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function user()
     {

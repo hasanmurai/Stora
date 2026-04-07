@@ -11,8 +11,9 @@ use Laravel\Passport\Token;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
+    // 1. user registration
+    public function register(Request $request) {
+
         $request->validate([
             'name' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|unique:users',
@@ -33,8 +34,9 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request)
-    {
+    // 2. user login
+    public function login(Request $request) {
+        
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:8',
@@ -54,8 +56,8 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function logout(Request $request)
-    {
+    // 3. user logout
+    public function logout(Request $request) {
 
         $request->user()->tokens()->each(function (Token $token) {
         $token->revoke();
@@ -64,13 +66,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
-    public function user(Request $request)
-    {
-        return response()->json($request->user(), 200);
-    }
-
-    public function changePassword(Request $request)
-    {
+    // 4. change password
+    public function changePassword(Request $request) {
 
         $user = $request->user();
         
@@ -89,8 +86,9 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password changed successfully'], 200);
     }
 
-    public function deleteAccount(Request $request)
-    {
+    // 5. delete account
+    public function deleteAccount(Request $request) {
+
         $user = $request->user();
         $user->shops()->delete(); 
         $user->delete();
@@ -98,8 +96,9 @@ class AuthController extends Controller
         return response()->json(['message' => 'Account deleted successfully'], 200);
     }
 
-    public function updateProfile(Request $request)
-    {
+    // 6. edit profile
+    public function editProfile(Request $request) {
+
         $user = $request->user();
         $data = $request->validate([
             'name' => 'sometimes|required|string|max:255|unique:users,name,' . $user->id,
@@ -112,5 +111,10 @@ class AuthController extends Controller
          'user' => $user->fresh()], 200);
     }
 
+    // 7. get user profile
+    public function getProfile(Request $request) {
+
+        return response()->json(['user' => $request->user()], 200);
+    }
 
 }

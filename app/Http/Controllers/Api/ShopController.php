@@ -15,8 +15,9 @@ class ShopController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addShop(Request $request)
-    {
+    // 1. add shop
+    public function addShop(Request $request) {
+
         $request->validate([
             'shopName' => 'required|string|max:255|unique:shops,name',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -44,13 +45,15 @@ class ShopController extends Controller
         return Str::slug($shopName);
     }
 
-    public function listShops(Request $request)
-    {
+    // 2. list shops
+    public function listShops(Request $request) {
+
         $shops = $request->user()->shops()->get();
 
         return response()->json(['shops' => $shops], 200);
     }
 
+    // 3. delete shop
     public function deleteShop(Request $request, $id)
     {
         $shop = $request->user()->shops()->find($id);
@@ -64,8 +67,8 @@ class ShopController extends Controller
         return response()->json(['message' => 'Shop deleted successfully'], 200);
     }
 
-    public function updateShop(Request $request, $id)
-    {
+    // 4. edit shop info
+    public function editShop(Request $request, $id) {
 
         $shop = Shop::where('user_id', $request->user()->id)->find($id);
 
@@ -87,16 +90,5 @@ class ShopController extends Controller
 
         return response()->json(['shop' => $shop->fresh()], 200);
     }
-
-    // public function getShop(Request $request, $id)
-    // {
-    //     $shop = $request->user()->shops()->find($id);
-
-    //     if (!$shop) {
-    //         return response()->json(['message' => 'Shop not found'], 404);
-    //     }
-
-    //     return response()->json(['shop' => $shop], 200);
-    // }
 
 }
