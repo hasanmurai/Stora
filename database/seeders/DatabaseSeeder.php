@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
         '--no-interaction' => true,
     ]);
         \App\Models\User::factory()->create([
-        'name' => 'Admin User',
-        'email' => 'admin@example.com',
-        'role' => 'admin',
-        'password' => bcrypt('password'),
+        'name' => 'Owner User',
+        'email' => 'owner@gmail.com',
+        'password' => bcrypt('12345678'),
+        'role' => 'owner',
     ]);
     }
 }

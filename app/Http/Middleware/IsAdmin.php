@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
 
 class IsAdmin
 {
@@ -13,12 +13,14 @@ class IsAdmin
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next){
+    public function handle(Request $request, Closure $next)
+    {
+        $user = $request->user();
 
-        if (Auth::guard('api')->check() && Auth::guard('api')->user()->role === 'admin') {
+        if ($user && $user->isStaff()) {
             return $next($request);
         }
 
-        return response()->json(['message' => 'Access Denied: Admins Only'], 403);
+        return response()->json(['message' => 'Access Denied: High-level clearance required.'], 403);
     }
 }

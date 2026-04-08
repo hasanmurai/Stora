@@ -19,6 +19,18 @@ class User extends Authenticatable
         'updated_at'
     ];
 
+    public function isOwner() {
+        return $this->role === 'owner';
+    }
+
+    public function isAdmin() {
+        return $this->role === 'admin';
+    }
+
+    public function isStaff(): bool{
+        return in_array($this->role, ['admin', 'owner']);
+    }
+
     public function shops()
     {
         return $this->hasMany(Shop::class);
