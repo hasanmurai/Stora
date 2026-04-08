@@ -11,9 +11,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products/{shopId}', [ProductController::class, 'listProducts']);
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::put('/update', [AuthController::class, 'editProfile']);
-    Route::put('/change-password', [AuthController::class, 'changePassword']);
 
     Route::prefix('shops')->group(function () {
         Route::post('/add', [ShopController::class, 'addShop']);
@@ -27,4 +24,13 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{productId}', [ProductController::class, 'editProduct']);
         Route::delete('/{productId}', [ProductController::class, 'deleteProduct']);
     });
+});
+
+Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/update', [AuthController::class, 'editProfile']);
+    Route::put('/change-password', [AuthController::class, 'changePassword']);
+    // Route::get('/dashboard', [AdminController::class, 'stats']);
+    // Route::get('/all-users', [AdminController::class, 'listAllUsers']);
+    // Route::delete('/force-delete-shop/{id}', [AdminController::class, 'deleteAnyShop']);
 });
