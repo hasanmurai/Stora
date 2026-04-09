@@ -19,7 +19,7 @@ class User extends Authenticatable
         'updated_at'
     ];
 
-    public function isOwner() {
+    public function isOwner(){
         return $this->role === 'owner';
     }
 
@@ -27,7 +27,7 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function isStaff(): bool{
+    public function isStaff(){
         return in_array($this->role, ['admin', 'owner']);
     }
 

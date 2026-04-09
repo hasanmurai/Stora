@@ -31,7 +31,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
-    Route::patch('/users/{id}/role', [AdminController::class, 'assignRole']);
+    Route::patch('/users/{id}', [AdminController::class, 'assignRole']);
     Route::get('/dashboard', [AdminController::class, 'stats']);
     Route::get('/users', [AdminController::class, 'listAllUsers']);
 });

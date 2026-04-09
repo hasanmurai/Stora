@@ -19,7 +19,7 @@ class AdminController extends Controller
     $targetUser = User::findOrFail($id);
     $currentUser = Auth::user();
 
-    if ($request->isOwner() && !$currentUser->isOwner()) {
+    if ($request->role === 'owner' && !$currentUser->isOwner()) {
         return response()->json(['message' => 'Only the current Owner can appoint a new Owner.'], 403);
     }
 
