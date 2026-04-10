@@ -30,9 +30,12 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
-    Route::patch('/users/{id}', [AdminController::class, 'assignRole']);
-    Route::get('/dashboard', [AdminController::class, 'stats']);
-    Route::get('/users', [AdminController::class, 'listAllUsers']);
-    Route::get('/search',[AdminController::class, 'search']);
+Route::middleware(['auth:api', 'admin'])->group(function () {
+    Route::prefix('admin')->controller(AdminController::class)->group(function () {
+        Route::patch('/users/{id}', 'assignRole');
+        Route::get('/dashboard', 'stats');
+        Route::get('/users', 'listAllUsers');
+        Route::get('/search','search');
+        Route::patch('/users/{id}/status', 'toggleStatus');
+    });
 });

@@ -19,16 +19,24 @@ class User extends Authenticatable
         'updated_at'
     ];
 
-    public function isOwner(){
+    public function isOwner():bool
+    {
         return $this->role === 'owner';
     }
 
-    public function isAdmin() {
+    public function isAdmin():bool
+    {
         return $this->role === 'admin';
     }
 
-    public function isStaff(){
+    public function isStaff():bool
+    {
         return in_array($this->role, ['admin', 'owner']);
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->status === 'banned';
     }
 
     public function shops()

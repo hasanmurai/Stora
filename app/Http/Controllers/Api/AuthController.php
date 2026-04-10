@@ -7,15 +7,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Token;
+use Illuminate\Support\Facades\Auth;
 
 
 class AuthController extends Controller
 {
     // 1. user registration
-    public function register(Request $request) {
-
+    public function register(Request $request)
+    {
         $request->validate([
-            'name' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:8|confirmed', 
         ]);
@@ -26,7 +27,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('StoreToken')->accessToken;
+        $token = $user->createToken('Personal Access Token')->accessToken;
 
         return response()->json([
             'user' => $user,
@@ -35,30 +36,40 @@ class AuthController extends Controller
     }
 
     // 2. user login
-    public function login(Request $request) {
-
+    public function login(Request $request)
+    {
         $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string|min:8',
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $credentials = $request->only('email', 'password');
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->status === 'banned') {
+                Auth::logout(); 
+                return response()->json([
+                    'message' => 'Your account has been deactivated. Please contact support.'
+                ], 403);
+            }
+
+            $token = $user->createToken('Personal Access Token')->accessToken;
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $token
+            ], 200);
         }
 
-        $token = $user->createToken('StoreToken')->accessToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ], 200);
+        return response()->json(['message' => 'Invalid email or password.'], 401);
     }
 
     // 3. user logout
-    public function logout(Request $request) {
-
+    public function logout(Request $request)
+    {
         $request->user()->tokens()->each(function (Token $token) {
         $token->revoke();
         $token->refreshToken?->revoke();
@@ -67,8 +78,8 @@ class AuthController extends Controller
     }
 
     // 4. change password
-    public function changePassword(Request $request) {
-
+    public function changePassword(Request $request)
+    {
         $user = $request->user();
         
         $request->validate([
@@ -87,8 +98,8 @@ class AuthController extends Controller
     }
 
     // 5. delete account
-    public function deleteAccount(Request $request) {
-
+    public function deleteAccount(Request $request)
+    {
         $user = $request->user();
         if(!$user) {
             return response()->json(['message' => 'User not found'], 404);
@@ -100,8 +111,8 @@ class AuthController extends Controller
     }
 
     // 6. edit profile
-    public function editProfile(Request $request) {
-
+    public function editProfile(Request $request)
+    {
         $user = $request->user();
         $data = $request->validate([
             'name' => 'sometimes|required|string|max:255|unique:users,name,' . $user->id,
@@ -115,8 +126,8 @@ class AuthController extends Controller
     }
 
     // 7. get user profile
-    public function getProfile(Request $request) {
-
+    public function getProfile(Request $request)
+    {
         return response()->json(['user' => $request->user()], 200);
     }
 

@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
 
-    public function assignRole(Request $request, $id){
-
+    public function assignRole(Request $request, $id)
+    {
         $request->validate([
         'role' => 'required|in:user,admin,owner'
         ]);
@@ -38,8 +38,8 @@ class AdminController extends Controller
 
     }
 
-    public function listAllUsers(){
-
+    public function listAllUsers()
+    {
         $users = User::withCount(['shops'])->get();
 
         return response()->json([
@@ -48,8 +48,8 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function stats(){
-
+    public function stats()
+    {
         $stats = [
             'total_users' => User::count(),
             'total_shops' => Shop::count(),
@@ -81,7 +81,6 @@ class AdminController extends Controller
 
     public function search(Request $request)
     {
-        // 1. Grab the search term from the URL (e.g., ?q=electronics)
         $query = $request->query('q');
 
         if (blank($query)) {
@@ -90,21 +89,45 @@ class AdminController extends Controller
             'users' => [],
             'shops' => [],
             'products' => []
-        ]);
-    }
-        // 2. Search the Users table for matching names or emails
+            ]);
+        }
         $users = User::where('name', 'LIKE', "%$query%")
                     ->orWhere('email', 'LIKE', "%$query%")
                     ->get();
 
-        // 3. Search the Shops table for matching shop names
         $shops = Shop::where('name', 'LIKE', "%$query%")
                     ->get();
 
-        // 4. Combine them into one response
         return response()->json([
             'users' => $users,
             'shops' => $shops
-        ]);
+            ], 200);
     }
+
+    public function toggleStatus($id)
+    {
+        $targetUser = User::findOrFail($id);
+        $currentUser = Auth::user();
+
+        if ($targetUser->isOwner()) {
+            return response()->json(['message' => 'The Owner cannot be banned.'], 403);
+        }
+
+        if ($targetUser->id === $currentUser->id) {
+            return response()->json(['message' => 'You cannot ban yourself.'], 403);
+        }
+
+        if ($currentUser->isAdmin() && $targetUser->isAdmin()) {
+            return response()->json(['message' => 'Admins cannot ban other Admins.'], 403);
+        }
+
+        $targetUser->status = $targetUser->isBanned() ? 'active' : 'banned';
+        $targetUser->save();
+
+        return response()->json(['message' => "User status updated to {$targetUser->status}"], 200);
+    }
+
+
+
+
 }
