@@ -32,7 +32,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware(['auth:api', 'admin'])->group(function () {
     Route::prefix('admin')->controller(AdminController::class)->group(function () {
-        Route::patch('/users/{id}', 'assignRole');
+        Route::patch('/users/{id}/role', 'assignRole');
         Route::get('/dashboard', 'stats');
         Route::get('/users', 'listAllUsers');
         Route::get('/search','search');
