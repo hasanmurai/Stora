@@ -56,11 +56,9 @@ class ShopController extends Controller
     // 3. delete shop
     public function deleteShop(Request $request, $id)
     {
-        $shop = $request->user()->shops()->find($id);
+        $shop = Shop::findOrFail($id);
 
-        if (!$shop) {
-            return response()->json(['message' => 'Shop not found'], 404);
-        }
+        $this->authorize('delete', $shop);
 
         $shop->delete();
 
@@ -69,12 +67,11 @@ class ShopController extends Controller
 
     // 4. edit shop info
     public function editShop(Request $request, $id) {
+        
+        /** @var Shop $shop */
+        $shop = Shop::find($id) ?: abort(404, 'shop not found');
 
-        $shop = Shop::where('user_id', $request->user()->id)->find($id);
-
-        if (!$shop) {
-            return response()->json(['message' => 'Shop not found'], 404);
-        }
+        $this->authorize('update', $shop);
 
         $data = $request->validate([
             'name' => 'sometimes|string|max:255|unique:shops,name,' . $shop->id,
