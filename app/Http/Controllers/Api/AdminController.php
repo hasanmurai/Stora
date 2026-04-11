@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
 
+    // only owner allowed to assign role to others
     public function assignRole(Request $request, $id)
     {
         $targetUser = User::findOrFail($id);
@@ -91,6 +92,7 @@ class AdminController extends Controller
             ], 200);
     }
 
+    // owner can ban admin and admin can only ban user
     public function toggleStatus($id)
     {
         $targetUser = User::findOrFail($id);
