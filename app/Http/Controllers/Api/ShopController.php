@@ -26,7 +26,6 @@ class ShopController extends Controller
 
         $shop = $request->user()->shops()->create([
             'name' => $request->shopName,
-            'slug' => $this->generateSlug($request->shopName),
             'photo' => $request->photo ? $request->file('photo')->store('shops', 'public') : null,
             'description' => $request->description ? $request->description : null,
         ]);
@@ -34,16 +33,6 @@ class ShopController extends Controller
         return response()->json(['shop' => $shop], 201);
     }
 
-    /**
-     * Generate a slug from the given shop name.
-     *
-     * @param string $shopName
-     * @return string
-     */
-    private function generateSlug($shopName)
-    {
-        return Str::slug($shopName);
-    }
 
     // 2. list shops
     public function listShops(Request $request) {
@@ -56,7 +45,8 @@ class ShopController extends Controller
     // 3. delete shop
     public function deleteShop(Request $request, $id)
     {
-        $shop = Shop::findOrFail($id);
+        /** @var Shop $shop */
+        $shop = Shop::find($id) ?: abort(404, 'shop not found');
 
         $this->authorize('delete', $shop);
 
@@ -78,10 +68,6 @@ class ShopController extends Controller
             'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'sometimes|string',
         ]);
-
-        if ($request->filled('name') && $request->name !== $shop->name) {
-            $data['slug'] = $this->generateSlug($request->name);
-        }
 
         $shop->update($data);
 
