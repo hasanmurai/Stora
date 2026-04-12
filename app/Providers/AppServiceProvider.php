@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\{User, Shop};
-use App\Policies\{UserPolicy, ShopPolicy};
+use App\Models\{User, Shop, Product};
+use App\Policies\{ProductPolicy, UserPolicy, ShopPolicy};
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Shop::class, ShopPolicy::class);
+        Gate::policy(Product::class, ProductPolicy::class);
 
         // Gate::before(function ($user, $ability) {
         //     return $user->isOwner() ? true : null;

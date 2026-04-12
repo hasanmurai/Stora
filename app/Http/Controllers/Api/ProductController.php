@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shop;
+use App\Models\{Shop,Product};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,6 +12,10 @@ class ProductController extends Controller
     // 1. add product
     public function addProduct(Request $request, $shopId) {
 
+        /** @var Shop $shop */
+        $shop = Shop::find($shopId) ?: abort(404, 'Shop not found');
+        $this->authorize('create', [Product::class, $shop]);
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'photo' => 'required|image|max:2048',
@@ -21,12 +25,9 @@ class ProductController extends Controller
             
         ]);
 
-        $shop = $request->user()->shops()->find($shopId);
-
-        if (!$shop) {
-            return response()->json(['message' => 'Shop not found or unauthorized'], 404);
-        }
-
+        if ($request->hasFile('photo')) {
+        $data['photo'] = $request->file('photo')->store('products', 'public');
+    }
         $product = $shop->products()->create([
             'name' => $request->name,
             'photo' => $request->file('photo')->store('products', 'public'),
@@ -41,16 +42,9 @@ class ProductController extends Controller
     // 2. edit product info
     public function editProduct(Request $request, $productId) {
 
-        $product = $request->user()->products()->find($productId);
-        
-        // $product = Product::where('id', $productId)
-        //     ->whereHas('shop', function ($query) {
-        //         $query->where('user_id', Auth::id());
-        //     })->first();
-
-        if (!$product) {
-            return response()->json(['message' => 'Product not found or unauthorized'], 404);
-        }
+        /** @var Product $product */
+        $product = Product::find($productId) ?: abort(404, 'product not found');
+        $this->authorize('update', $product);
 
         $data = $request->validate([
             'name'        => 'sometimes|string|max:255',
@@ -61,10 +55,8 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            
-            Storage::disk('public')->delete($product->photo);
-            $data['photo'] = $request->file('photo')->store('products', 'public');
-        }
+        $data['photo'] = $request->file('photo')->store('products', 'public');
+    }
 
         $product->update($data);
 
@@ -74,16 +66,12 @@ class ProductController extends Controller
 
 
     // 3. delete product
-    public function deleteProduct(Request $request, $productId) {
-        $product = $request->user()->products()->find($productId);
-
-        if (!$product) {
-            return response()->json(['message' => 'Product not found or unauthorized'], 404);
-        }
-
-        Storage::disk('public')->delete($product->photo);
+    public function deleteProduct($productId) {
+        
+        /** @var Product $product */
+        $product = Product::find($productId) ?: abort(404, 'product not found');
+        $this->authorize('delete', $product);
         $product->delete();
-
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }
 
