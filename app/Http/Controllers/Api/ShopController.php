@@ -43,7 +43,7 @@ class ShopController extends Controller
     }
 
     // 3. delete shop
-    public function deleteShop(Request $request, $id)
+    public function deleteShop($id)
     {
         /** @var Shop $shop */
         $shop = Shop::find($id) ?: abort(404, 'shop not found');
@@ -69,6 +69,9 @@ class ShopController extends Controller
             'description' => 'sometimes|string',
         ]);
 
+        if ($request->hasFile('photo')) {
+        $data['photo'] = $request->file('photo')->store('shops', 'public');
+    }
         $shop->update($data);
 
         return response()->json(['shop' => $shop->fresh()], 200);
