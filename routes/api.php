@@ -19,7 +19,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('shops')->controller(ShopController::class)->group(function () {
         Route::get('/', 'listShops');
         Route::post('/', 'addShop');
-        Route::put('/{id}', 'editShop');
+        Route::patch('/{id}', 'editShop');
         Route::delete('/{id}', 'deleteShop');
     });
 
