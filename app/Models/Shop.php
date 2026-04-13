@@ -34,6 +34,12 @@ class Shop extends Model
         });
     }
 
+    public function scopeActive($query)
+    {
+        return $query->whereHas('user', function ($q) {
+            $q->where('status', 'active'); 
+        });
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
