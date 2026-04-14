@@ -9,11 +9,14 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/shops/{shopId}/products', [ProductController::class, 'listProducts']);
 Route::get('/search', [PublicController::class, 'search']);
+Route::get('/shops/{slug}', [PublicController::class, 'showShop']);
+Route::get('/products/{slug}', [PublicController::class, 'showProduct']);
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:api','check.banned')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     
     Route::prefix('profile')->controller(AuthController::class)->group(function () {
+        Route::get('/','getProfile');
         Route::put('/', 'editProfile');
         Route::put('/password', 'changePassword');
     });
@@ -32,7 +35,7 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-Route::middleware(['auth:api', 'admin'])->group(function () {
+Route::middleware(['auth:api', 'admin', 'check.banned'])->group(function () {
     Route::prefix('admin')->controller(AdminController::class)->group(function () {
         Route::patch('/users/{id}/role', 'assignRole');
         Route::get('/dashboard', 'stats');
