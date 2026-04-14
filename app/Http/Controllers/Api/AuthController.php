@@ -48,7 +48,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->status === 'banned') {
+            if ($user->isBanned()) {
                 Auth::logout(); 
                 return response()->json([
                     'message' => 'Your account has been deactivated. Please contact support.'
