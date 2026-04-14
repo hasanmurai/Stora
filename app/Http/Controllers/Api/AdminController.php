@@ -95,12 +95,17 @@ class AdminController extends Controller
     // owner can ban admin and admin can only ban user
     public function toggleStatus($id)
     {
-        $targetUser = User::findOrFail($id);
+        /** @var User */
+        $targetUser = User::find($id) ?: abort(404, 'User not found');
 
         $this->authorize('toggleStatus', $targetUser);
 
         $targetUser->status = $targetUser->isBanned() ? 'active' : 'banned';
         $targetUser->save();
+
+        if ($targetUser->status === 'banned') {
+        $targetUser->tokens()->delete(); 
+        }
 
         return response()->json([
         'status' => 'success',
